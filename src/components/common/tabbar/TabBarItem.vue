@@ -31,7 +31,7 @@ export default {
           return this.$route.path===this.path
       },
       activeStyle(){
-          console.log(this.activeColor)
+          //console.log(this.activeColor)
           return this.isActive?{color:this.activeColor}:{}
       }
   }
