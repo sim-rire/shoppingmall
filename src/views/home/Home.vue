@@ -34,15 +34,14 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodList.vue";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
 
-import HomeSwiper from "./childrenCps/HomeSwiper";
+import HomeSwiper from "./childrenCps/HomeSwiper.vue";
 import Recommend from "./childrenCps/Recommend";
 import Popular from "./childrenCps/Popular";
 
 import { getHomeMultidata, getHomeGoodsdata } from "network/home";
-import { debounce } from "common/utils.js";
-
+// import { debounce } from "common/utils.js";
+import {itemListenrMixin,backrToTop} from 'common/mixin.js'
 export default {
   name: "home",
   components: {
@@ -52,9 +51,9 @@ export default {
     Popular,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
   },
+  mixins:[itemListenrMixin,backrToTop],
   data() {
     return {
       titles: [
@@ -62,7 +61,6 @@ export default {
         { title: "经典", default: "", type: "sell" },
         { title: "新款", default: "", type: "new" }
       ],
-      isShowBackTop: false,
       TabFixedShow: false,
       tabControlSTop: 0,
       saveY:0,
@@ -83,10 +81,12 @@ export default {
     this.getHomeGoodsdata("new");
   },
   mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh, 200);
-    this.$bus.$on("imgLoaded", () => {
-      refresh();
-    });
+    // const refresh = debounce(this.$refs.scroll.refresh, 200);
+    
+    // this.itemImgListeer=() => {
+    //   refresh();
+    // }
+    // this.$bus.$on("imgLoaded", this.itemImgListeer);
   },
   methods: {
     swiperImgLoad() {
@@ -94,15 +94,11 @@ export default {
       this.tabControlSTop = this.$refs["tab-control"].$el.offsetTop;
       console.log(this.tabControlSTop);
     },
-    backTop() {
-      //console.log(this.$refs.scroll.scrollTo)
-      this.$refs.scroll.scrollTo(0, 0);
-    },
+   
     scrollBack(position) {
       //console.log(position)
-      //BackTop是否显示
-      this.isShowBackTop = Math.abs(position.y) > 1000;
-
+     // console.log(this.backTop)
+      this.showTop(position)
       //tab-control 是否吸顶
       this.TabFixedShow = Math.abs(position.y) > this.tabControlSTop;
     },
@@ -148,9 +144,12 @@ export default {
   },
   activated(){
     this.$refs.scroll.scrollTo(0,this.saveY,0)
+    this.$refs.scroll.refresh()
   },
   deactivated(){
     this.saveY=this.$refs.scroll.getScrollY()
+
+    this.$bus.$off('imgLoaded',this.itemImgListeer)
   }
 };
 </script>
